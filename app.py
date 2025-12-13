@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # --- CONFIGURATION ---
 # Yahan apni Google API Key paste karein
-GOOGLE_API_KEY = "AIzaSyCmGH2x4RFrNxszaJl3s7JBInRia3mZMX8"
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # Google Gemini Setup
 try:
@@ -50,4 +50,5 @@ if __name__ == '__main__':
     # Server start hoga
 
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
