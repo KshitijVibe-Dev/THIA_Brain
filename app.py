@@ -12,7 +12,7 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 try:
     genai.configure(api_key=GOOGLE_API_KEY)
     # Hum 'gemini-1.5-flash' use kar rahe hain (Ye sabse fast aur naya hai)
-    model = genai.GenerativeModel('gemini-flash-latest')
+    model = genai.GenerativeModel('gemini-2.0-flash')
     print("✅ Connected to Google Gemini successfully!")
 except Exception as e:
     print(f"❌ Connection Error: {e}")
@@ -50,5 +50,6 @@ if __name__ == '__main__':
     # Server start hoga
 
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
