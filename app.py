@@ -1,56 +1,48 @@
-from flask import Flask, request, jsonify
-import google.generativeai as genai
 import os
+from flask import Flask, request, jsonify
+from groq import Groq
 
 app = Flask(__name__)
 
-# --- CONFIGURATION ---
-# Yahan apni Google API Key paste karein
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-
-# Google Gemini Setup
-try:
-    genai.configure(api_key=GOOGLE_API_KEY)
-    # Hum 'gemini-1.5-flash' use kar rahe hain (Ye sabse fast aur naya hai)
-    model = genai.GenerativeModel('gemma-3-27b-it')
-    print("✅ Connected to Google Gemini successfully!")
-except Exception as e:
-    print(f"❌ Connection Error: {e}")
+# Groq Client Setup (Key Render ke locker se lega)
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
+)
 
 @app.route('/')
 def home():
-    return "THIA Brain is Active! 🤖"
+    return "THIA Brain is Active on Groq! 🚀"
 
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
-        # 1. Android se data aayega
-        data = request.json
-        user_message = data.get('message', '')
+        user_data = request.json
+        user_message = user_data.get('message')
 
         if not user_message:
-            return jsonify({"reply": "Message khali tha Boss!"})
+            return jsonify({"reply": "Kuch toh bolo Boss! (Empty message)"})
 
-        print(f"📩 User bola: {user_message}")
+        # Groq se jawab maangna (Llama 3 Model - Super Fast)
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are THIA, a futuristic AI assistant with a personality like the Predator movie interface. You are loyal to your Boss. Keep answers short, crisp, and robotic."
+                },
+                {
+                    "role": "user",
+                    "content": user_message,
+                }
+            ],
+            model="llama3-8b-8192",  # Ye model bohot fast aur free hai
+        )
 
-        # 2. Gemini sochega
-        response = model.generate_content(user_message)
-        bot_reply = response.text
-
-        print(f"📤 THIA boli: {bot_reply}")
-
-        # 3. Jawab wapas bhejo
+        bot_reply = chat_completion.choices[0].message.content
         return jsonify({"reply": bot_reply})
 
     except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"reply": "Brain Error: Main soch nahi pa rahi."})
+        return jsonify({"reply": f"System Error: {str(e)}"})
 
 if __name__ == '__main__':
-    # Server start hoga
-
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
-
-
-
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
